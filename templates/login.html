@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de sesión</title>
+</head>
+<body>
+    <h1>Inicio de sesión</h1>
+    <form action="/login" method="POST" enctype="multipart/form-data">
+        {% if not private_key %}
+            <label for="secret">Ingresa el secreto:</label>
+            <input type="text" id="secret" name="secret">
+        {% endif %}
+        <br>
+        <label for="private_key">Selecciona tu archivo de clave privada:</label>
+        <input type="file" id="private_key" name="private_key" accept=".pem">
+        <br>
+        <button type="submit">Iniciar sesión</button>
+    </form>
+</body>
+</html>
