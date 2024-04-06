@@ -78,6 +78,7 @@ exchange?
 Code Quality. Is the source code well-written, documented, and adhering to best practices?
 A video presentation/demonstration. Is the presentation clear, organized, and e^ectively
 communicates the project's objectives and outcomes?
+
 5. Conclusion.
 This project will not only provide students with practical experience in implementing
 cryptographic protocols but also deepen their understanding of security concepts such as
