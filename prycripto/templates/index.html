@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
+<body>
+    <h1>Chat</h1>
+    <div id="chat-box"></div>   
+    <input type="text" id="username-input" placeholder="Nombre de usuario">
+    <input type="text" id="message-input">
+    <button onclick="sendMessage()">Enviar</button>
+
+
+    <script>
+        
+
+
+        function sendMessage() {
+            var messageInput = document.getElementById("message-input");
+            var username = document.getElementById("username-input").value.trim();
+            var message = messageInput.value.trim();
+            if (message !== "" && username !== "") {
+                messageInput.value = "";
+                fetch("/send_message", {
+                    method: "POST",
+                    body: new URLSearchParams({"username": username, "message": message}),
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                });
+            }
+        }
+    
+        async function getMessages() {
+            var response = await fetch("/get_messages");
+            var data = await response.json();
+            var messages = data.messages;
+            var chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML = "";
+            messages.forEach(function(msg) {
+                var messageElement = document.createElement("div");
+                messageElement.textContent = msg.username + ": " + msg.message;
+                chatBox.appendChild(messageElement);
+            });
+        }
+    
+        getMessages();
+        setInterval(getMessages, 1000);
+    </script>
+    <br>
+    <button type="submit">Iniciar Chat</button>
+    <form action="/logout" method="POST">
+    <button type="submit">Terminar Chat</button>
+    </form>
+</body>
+</html>
