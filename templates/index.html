@@ -14,6 +14,9 @@
 
 
     <script>
+        
+
+
         function sendMessage() {
             var messageInput = document.getElementById("message-input");
             var username = document.getElementById("username-input").value.trim();
@@ -46,5 +49,10 @@
         getMessages();
         setInterval(getMessages, 1000);
     </script>
+    <br>
+    <button type="submit">Iniciar Chat</button>
+    <form action="/logout" method="POST">
+    <button type="submit">Terminar Chat</button>
+    </form>
 </body>
 </html>
