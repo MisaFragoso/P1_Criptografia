@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect
+from flask import Flask, render_template, request, jsonify, redirect, send_file
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -71,37 +71,54 @@ def login():
     secret = request.form["secret"]
     key_location = request.form["key_location"]
 
-    if not secret or not key_location:
+    if not secret and not request.files['private_key']: 
         return redirect("/")
 
     private_key_path = os.path.join(key_location, "private.pem")
     public_key_path = os.path.join(key_location, "public.pem")
 
-    try:
-        # Importar clave privada con contraseña
-        with open(private_key_path, "rb") as f:
-            private_key_data = f.read()  # Leer los datos completos de la clave como bytes
-        private_key = RSA.import_key(private_key_data, passphrase=secret)
-
-        # Leer datos de clave pública de un archivo
-        with open(public_key_path, "rb") as f:
-            public_key_data = f.read()
-
-        # Asegurarse de que los datos estén en el formato correcto
+    if os.path.exists(public_key_path and private_key_path):
         try:
-            public_key = RSA.import_key(public_key_data)
-            # Si no hay excepción, los datos están en el formato correcto
-            print("Clave pública importada correctamente")
-        except (ValueError, IndexError) as e:
-            # Manejar el error si los datos no están en el formato correcto
-            print(f"Error al importar la clave pública: {e}")
+            # Importar clave privada con contraseña
+            with open(private_key_path, "rb") as f:
+                private_key_data = f.read()  # Leer los datos completos de la clave como bytes
+            private_key = RSA.import_key(private_key_data, passphrase=secret)
 
-    except (IOError, ValueError) as e:
-        # Manejar errores de importación de claves
-        print(f"Error al importar las claves: {e}")
-        return redirect("/")
+            # Leer datos de clave pública de un archivo
+            with open(public_key_path, "rb") as f:
+                public_key_data = f.read()
 
-    else:  # Claves importadas correctamente
+            # Asegurarse de que los datos estén en el formato correcto
+            try:
+                public_key = RSA.import_key(public_key_data)
+                # Si no hay excepción, los datos están en el formato correcto
+                print("Clave pública importada correctamente")
+            except (ValueError, IndexError) as e:
+                # Manejar el error si los datos no están en el formato correcto
+                print(f"Error al importar la clave pública: {e}")
+
+        except (IOError, ValueError) as e:
+            # Manejar errores de importación de claves
+            print(f"Error al importar las claves: {e}")
+            return redirect("/")
+    else:
+        # Generar pareja de claves RSA de 2048 bits de longitud, llaves asimetricas
+        key = RSA.generate(2048)
+        # Exportamos la clave privada
+        private_key = key.export_key(passphrase=secret)
+        # Obtenemos la clave pública
+        public_key = key.publickey().export_key()
+        # Guardar la clave privada en la ubicación especificada por el usuario
+        private_key_path = os.path.join(key_location, "private.pem")
+        with open(private_key_path, "wb") as f:
+             f.write(private_key)
+        # Guardar la clave publica en dircetorio de usuarios (falta implementar)
+        public_key_path = os.path.join(key_location, "public.pem")
+        with open(public_key_path, "wb") as f:
+             f.write(public_key)
+        send_file(private_key_path, as_attachment=True)
+        send_file(public_key_path, as_attachment=True)
+
         # Derivar clave simétrica usando PBKDF2
         password = bytes(secret, 'utf-8')
         salt = get_random_bytes(16)
@@ -109,9 +126,9 @@ def login():
 
         # Imprimir información en la terminal
         print("Clave privada RSA:")
-        print(private_key.export_key().decode())
+        #print(private_key.export_key().decode())
         print("\nClave pública RSA:")
-        print(public_key.export_key().decode())
+        #print(public_key.export_key().decode())
         print("\nSalt generado:", salt.hex())
         print("Clave simétrica derivada:", symmetric_key.hex())
 
