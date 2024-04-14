@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -48,3 +49,125 @@
     </script>
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #chat-box {
+            width: 80%;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #fff;
+            margin-bottom: 20px;
+        }
+        input[type="text"], button {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[type="text"] {
+            width: 50%;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat</h1>
+    <div id="chat-box"></div>
+    <input type="text" id="username-input" placeholder="Nombre de usuario">
+    <input type="text" id="message-input" placeholder="Mensaje">
+    <input type="text" id="recipient-input" placeholder="Destinatario"> <!-- Campo para el destinatario -->
+    <button onclick="sendMessage()">Enviar</button>
+
+    <script>
+    function sendMessage() {
+        var messageInput = document.getElementById("message-input");
+        var username = document.getElementById("username-input").value.trim();
+        var message = messageInput.value.trim();
+        var recipient = document.getElementById("recipient-input").value.trim();
+        if (message !== "" && username !== "" && recipient !== "") {
+            messageInput.value = "";
+            fetch("/send_message", {
+                method: "POST",
+                body: new URLSearchParams({
+                    "username": username, // Usamos solo "username"
+                    "message": message,
+                    "recipient": recipient
+                }),
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            }).then(data => {
+                console.log('Message sent:', data);
+            }).catch(error => {
+                console.error('Error during sendMessage:', error);
+            });
+        }
+    }
+
+    async function getMessages() {
+        try {
+            var response = await fetch("/get_messages");
+            var data = await response.json();
+            var messages = data.messages;
+            var chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML = "";
+            messages.forEach(function(msg) {
+                var messageElement = document.createElement("div");
+                messageElement.textContent = msg.username + " -> " + msg.recipient + ": " + msg.message; // Usamos "username" en lugar de "sender"
+                chatBox.appendChild(messageElement);
+            });
+        } catch (error) {
+            console.error('Failed to fetch messages:', error);
+        }
+    }
+
+    getMessages();
+    setInterval(getMessages, 1000);
+</script>
+
+    <br>
+    <button type="submit" onclick="startChat()">Iniciar Chat</button>
+    <form action="/logout" method="POST">
+        <button type="submit">Terminar Chat</button>
+    </form>
+</body>
+</html>
+>>>>>>> Stashed changes
