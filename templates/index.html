@@ -56,6 +56,7 @@
     <div id="chat-box"></div>   
     <input type="text" id="username-input" placeholder="Nombre de usuario">
     <input type="text" id="message-input" placeholder="Mensaje">
+    <input type="text" id="recipient-input" placeholder="Destinatario"> <!-- Campo para el destinatario -->
     <button onclick="sendMessage()">Enviar</button>
 
     <script>
@@ -63,11 +64,12 @@
             var messageInput = document.getElementById("message-input");
             var username = document.getElementById("username-input").value.trim();
             var message = messageInput.value.trim();
-            if (message !== "" && username !== "") {
+            var recipient = document.getElementById("recipient-input").value.trim(); // Obtener el destinatario del campo de entrada
+            if (message !== "" && username !== "" && recipient !== "") { // Verificar que todos los campos estén llenos
                 messageInput.value = "";
                 fetch("/send_message", {
                     method: "POST",
-                    body: new URLSearchParams({"username": username, "message": message}),
+                    body: new URLSearchParams({"username": username, "message": message, "sender": username, "recipient": recipient}), // Incluir el destinatario en el cuerpo del mensaje
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded"
                     }
@@ -83,7 +85,7 @@
             chatBox.innerHTML = "";
             messages.forEach(function(msg) {
                 var messageElement = document.createElement("div");
-                messageElement.textContent = msg.username + ": " + msg.message;
+                messageElement.textContent = msg.sender + " -> " + msg.recipient + ": " + msg.message; // Mostrar remitente, destinatario y mensaje
                 chatBox.appendChild(messageElement);
             });
         }
