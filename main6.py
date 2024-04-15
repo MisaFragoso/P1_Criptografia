@@ -203,11 +203,10 @@ def send_message():
         print(f"One of the users is not registered: sender={sender}, recipient={recipient}")
         return jsonify({"error": "Sender or recipient not registered."}), 403
 
-    message_hash = hash_message(message)
-    signature = sign_message(message_hash, users[sender]["private_key"])
-
     try:
         ciphertext, tag, nonce = encrypt_symmetric(message, users[recipient]["symmetric_key"])
+        message_hash = hash_message(ciphertext)
+        signature = sign_message(message_hash, users[sender]["private_key"])
         encrypted_symmetric_key = encrypt_asymmetric(users[recipient]["symmetric_key"], users[recipient]["public_key"])
     except Exception as e:
         print(f"Error encrypting message: {e}")
@@ -229,6 +228,7 @@ def send_message():
     print("Decrypted message:", message)
     print("Tag:", base64.b64encode(tag).decode())
     print("Nonce (IV):", base64.b64encode(nonce).decode())
+    print("Hashed Message: ",message_hash)
     print("Message integrity:")
 
     try:
