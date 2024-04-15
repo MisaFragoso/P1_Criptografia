@@ -4,28 +4,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #chat-box {
+            width: 80%;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #fff;
+            margin-bottom: 20px;
+        }
+        input[type="text"], button {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[type="text"] {
+            width: 50%;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <h1>Chat</h1>
     <div id="chat-box"></div>   
     <input type="text" id="username-input" placeholder="Nombre de usuario">
-    <input type="text" id="message-input">
+    <input type="text" id="message-input" placeholder="Mensaje">
+    <input type="text" id="recipient-input" placeholder="Destinatario"> <!-- Campo para el destinatario -->
     <button onclick="sendMessage()">Enviar</button>
 
-
     <script>
-        
-
-
         function sendMessage() {
             var messageInput = document.getElementById("message-input");
             var username = document.getElementById("username-input").value.trim();
             var message = messageInput.value.trim();
-            if (message !== "" && username !== "") {
+            var recipient = document.getElementById("recipient-input").value.trim(); // Obtener el destinatario del campo de entrada
+            if (message !== "" && username !== "" && recipient !== "") { // Verificar que todos los campos estén llenos
                 messageInput.value = "";
                 fetch("/send_message", {
                     method: "POST",
-                    body: new URLSearchParams({"username": username, "message": message}),
+                    body: new URLSearchParams({"username": username, "message": message, "sender": username, "recipient": recipient}), // Incluir el destinatario en el cuerpo del mensaje
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded"
                     }
@@ -41,7 +85,7 @@
             chatBox.innerHTML = "";
             messages.forEach(function(msg) {
                 var messageElement = document.createElement("div");
-                messageElement.textContent = msg.username + ": " + msg.message;
+                messageElement.textContent = msg.sender + " -> " + msg.recipient + ": " + msg.message; // Mostrar remitente, destinatario y mensaje
                 chatBox.appendChild(messageElement);
             });
         }
@@ -50,9 +94,9 @@
         setInterval(getMessages, 1000);
     </script>
     <br>
-    <button type="submit">Iniciar Chat</button>
+    <button type="submit" onclick="startChat()">Iniciar Chat</button>
     <form action="/logout" method="POST">
-    <button type="submit">Terminar Chat</button>
+        <button type="submit">Terminar Chat</button>
     </form>
 </body>
 </html>
