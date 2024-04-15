@@ -173,6 +173,13 @@ def login():
         "public_key": public_key
     }
 
+    print("RSA private key:")
+    print(private_key.export_key().decode())
+    print("\nRSA public key:")
+    print(public_key.export_key().decode())
+    print("\nGenerated salt:", salt.hex())
+    print("Derived symmetric key:", symmetric_key.hex())
+    
     return redirect("/chat")
 
 @app.route("/send_message", methods=["POST"])
